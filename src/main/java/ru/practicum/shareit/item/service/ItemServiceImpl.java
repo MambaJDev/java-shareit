@@ -46,8 +46,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<Item> searchItems(Long userId, String text) {
         checkUserIsPresent(userId);
-        if(text.isEmpty()) {
-           log.info("Параметр поиска пустой. Получен пустой список Item");
+        if (text.isEmpty()) {
+            log.info("Параметр поиска пустой. Получен пустой список Item");
             return Collections.emptyList();
         }
         return itemRepository.searchItems(text);
