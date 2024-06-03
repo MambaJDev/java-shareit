@@ -3,13 +3,14 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.dto.ItemShort;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,37 +21,48 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
 
     @Override
-    public Item save(Long userId, ItemShort itemShort) {
+    public ItemDto save(Long userId, ItemDto itemDto) {
         checkUserIsPresent(userId);
-        return itemRepository.save(userId, itemMapper.toItem(itemShort));
+        Item item = itemRepository.save(userId, itemMapper.toItem(itemDto));
+        return itemMapper.toItemDto(item);
     }
 
     @Override
-    public Item update(Long userId, Long itemId, ItemShort itemShort) {
+    public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
         checkUserIsPresent(userId);
-        return itemRepository.update(userId, itemId, itemMapper.toItem(itemShort));
+        Item item = itemRepository.getItemById(itemId);
+        if (!item.getOwner().equals(userId)) {
+            throw new IllegalArgumentException("User is not owner of item");
+        }
+        itemMapper.updateItemFromItemDto(itemDto, item);
+        return itemMapper.toItemDto(item);
     }
 
     @Override
-    public Item getItemById(Long userId, Long itemId) {
+    public ItemDto getItemById(Long userId, Long itemId) {
         checkUserIsPresent(userId);
-        return itemRepository.getItemById(itemId);
+        Item item = itemRepository.getItemById(itemId);
+        return itemMapper.toItemDto(item);
     }
 
     @Override
-    public List<Item> getAll(Long userId) {
+    public List<ItemDto> getAll(Long userId) {
         checkUserIsPresent(userId);
-        return itemRepository.getAll(userId);
+        return itemRepository.getAll(userId).stream()
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Item> searchItems(Long userId, String text) {
+    public List<ItemDto> searchItems(Long userId, String text) {
         checkUserIsPresent(userId);
         if (text.isEmpty()) {
             log.info("Параметр поиска пустой. Получен пустой список Item");
             return Collections.emptyList();
         }
-        return itemRepository.searchItems(text);
+        return itemRepository.searchItems(text).stream()
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
     private void checkUserIsPresent(Long userId) {

@@ -16,8 +16,8 @@ import java.util.Set;
 @Component
 public class UserRepositoryImpl implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
-    private static Long idGenerator = 1L;
     private final Set<String> emails = new HashSet<>();
+    private Long idGenerator = 1L;
 
     @Override
     public User create(User user) {
@@ -36,20 +36,16 @@ public class UserRepositoryImpl implements UserRepository {
         }
     }
 
+
     @Override
     public User update(Long id, User user) {
-        User userFromMap = users.get(id);
-        if (user.getName() != null) {
-            userFromMap.setName(user.getName());
-        }
-        if (user.getEmail() != null && !user.getEmail().equals(userFromMap.getEmail())) {
+        User userForUpdate = users.get(id);
+        if (user.getEmail() != null && !user.getEmail().equals(userForUpdate.getEmail())) {
             checkDublicateEmail(user);
-            emails.remove(userFromMap.getEmail());
+            emails.remove(userForUpdate.getEmail());
             emails.add(user.getEmail());
-            userFromMap.setEmail(user.getEmail());
         }
-        log.info("Юзер с id = {} обновлен", id);
-        return userFromMap;
+        return userForUpdate;
     }
 
     @Override
@@ -65,7 +61,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void deleteUserById(Long id) {
+        User user = users.remove(id);
         log.info("Юзер с id = {} удален", id);
-        emails.remove(users.remove(id).getEmail());
+        emails.remove(user.getEmail());
     }
 }
