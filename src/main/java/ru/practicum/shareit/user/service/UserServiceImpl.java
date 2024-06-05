@@ -19,16 +19,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(UserDto userDto) {
-        User user = userRepository.create(userMapper.toUser(userDto));
-        return userMapper.toUserDto(user);
+        User userFromDto = userMapper.toUser(userDto);
+        userRepository.checkDublicateEmail(userFromDto);
+        return userMapper.toUserDto(userRepository.create(userFromDto));
     }
 
     @Override
     public UserDto update(Long id, UserDto userDto) {
         checkUserIsPresent(id);
-        User userForUpdate = userRepository.update(id, userMapper.toUser(userDto));
-        userMapper.updateUserFromUserDto(userDto, userForUpdate);
-        return  userMapper.toUserDto(userForUpdate);
+        User userFromDto = userMapper.toUser(userDto);
+        User userFromRepository = userRepository.getUserById(id);
+        if (userFromDto.getEmail() != null && !userFromDto.getEmail().equals(userFromRepository.getEmail())) {
+            userRepository.checkDublicateEmail(userFromDto);
+            userRepository.getAllEmails().remove(userFromRepository.getEmail());
+            userRepository.getAllEmails().add(userFromDto.getEmail());
+        }
+        userMapper.updateUserFromUserDto(userDto, userFromRepository);
+        userRepository.update(userFromRepository);
+        return userMapper.toUserDto(userFromRepository);
     }
 
     @Override

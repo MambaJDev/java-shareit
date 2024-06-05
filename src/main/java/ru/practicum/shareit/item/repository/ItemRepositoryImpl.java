@@ -25,8 +25,8 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Item update(Long itemId, Item item) {
-        return null;
+    public Item update(Item item) {
+        return items.put(item.getId(), item);
     }
 
     @Override

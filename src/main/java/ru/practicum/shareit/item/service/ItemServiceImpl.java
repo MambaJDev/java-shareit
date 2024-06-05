@@ -35,6 +35,7 @@ public class ItemServiceImpl implements ItemService {
             throw new IllegalArgumentException("User is not owner of item");
         }
         itemMapper.updateItemFromItemDto(itemDto, item);
+        itemRepository.update(item);
         return itemMapper.toItemDto(item);
     }
 

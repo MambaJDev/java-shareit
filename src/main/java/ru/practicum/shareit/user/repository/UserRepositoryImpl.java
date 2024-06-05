@@ -21,7 +21,6 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User create(User user) {
-        checkDublicateEmail(user);
         emails.add(user.getEmail());
         user.setId(idGenerator++);
         users.put(user.getId(), user);
@@ -29,23 +28,23 @@ public class UserRepositoryImpl implements UserRepository {
         return user;
     }
 
-    private void checkDublicateEmail(User user) {
+    @Override
+    public void checkDublicateEmail(User user) {
         if (emails.contains(user.getEmail())) {
             log.info("Email уже существует");
             throw new DublicateEmailException("this email is already taken");
         }
     }
 
+    @Override
+    public Set<String> getAllEmails() {
+        return emails;
+    }
 
     @Override
-    public User update(Long id, User user) {
-        User userForUpdate = users.get(id);
-        if (user.getEmail() != null && !user.getEmail().equals(userForUpdate.getEmail())) {
-            checkDublicateEmail(user);
-            emails.remove(userForUpdate.getEmail());
-            emails.add(user.getEmail());
-        }
-        return userForUpdate;
+    public User update(User user) {
+        users.put(user.getId(), user);
+        return user;
     }
 
     @Override
