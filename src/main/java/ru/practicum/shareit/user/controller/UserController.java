@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.user.dto.NewUser;
-import ru.practicum.shareit.user.dto.UpdateUser;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.NewUser;
+import ru.practicum.shareit.user.model.UpdateUser;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class UserController {
     @PostMapping
     public UserDto create(@Validated(NewUser.class)
                        @RequestBody UserDto userDto) {
-        log.info("Поступил Post-запрос на добавление User");
+        log.info("Post-запрос на добавление User");
         return userService.create(userDto);
     }
 
@@ -36,7 +36,7 @@ public class UserController {
     public UserDto update(@Validated(UpdateUser.class)
                        @RequestBody UserDto userDto,
                        @PathVariable Long id) {
-        log.info("Поступил Patch-запрос на обновление User с ID = {}", id);
+        log.info("Patch-запрос на обновление User с ID = {}", id);
         return userService.update(id, userDto);
     }
 
@@ -48,13 +48,13 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> getAllUsers() {
-        log.info("Поступил GET-запрос на получение всех Users ");
+        log.info("GET-запрос на получение всех Users ");
         return userService.getAllUsers();
     }
 
     @DeleteMapping("/{id}")
     public void deleteUserById(@PathVariable Long id) {
-        log.info("Поступил DELETE-запрос на удаление User с id = {}", id);
+        log.info("DELETE-запрос на удаление User с id = {}", id);
         userService.deleteUserById(id);
     }
 }

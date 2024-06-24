@@ -3,11 +3,17 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.constant.Constants;
+import ru.practicum.shareit.error.DublicateEmailException;
+import ru.practicum.shareit.error.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,53 +22,54 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final Set<String> emails = new HashSet<>();
 
     @Override
     public UserDto create(UserDto userDto) {
-        User userFromDto = userMapper.toUser(userDto);
-        userRepository.checkDublicateEmail(userFromDto);
-        return userMapper.toUserDto(userRepository.create(userFromDto));
-    }
-
-    @Override
-    public UserDto update(Long id, UserDto userDto) {
-        checkUserIsPresent(id);
-        User userFromDto = userMapper.toUser(userDto);
-        User userFromRepository = userRepository.getUserById(id);
-        if (userFromDto.getEmail() != null && !userFromDto.getEmail().equals(userFromRepository.getEmail())) {
-            userRepository.checkDublicateEmail(userFromDto);
-            userRepository.getAllEmails().remove(userFromRepository.getEmail());
-            userRepository.getAllEmails().add(userFromDto.getEmail());
-        }
-        userMapper.updateUserFromUserDto(userDto, userFromRepository);
-        userRepository.update(userFromRepository);
-        return userMapper.toUserDto(userFromRepository);
-    }
-
-    @Override
-    public UserDto getUserById(Long id) {
-        checkUserIsPresent(id);
-        User user = userRepository.getUserById(id);
+        emails.add(userDto.getEmail());
+        User user = userRepository.save(userMapper.toUser(userDto));
+        log.info("Юзер с id = {} добавлен", user.getId());
         return userMapper.toUserDto(user);
     }
 
     @Override
+    public UserDto update(Long id, UserDto userDto) {
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException(Constants.USER_NOT_FOUND));
+        if (userDto.getEmail() != null && !userDto.getEmail().equals(user.getEmail())) {
+            checkDublicateEmail(userDto.getEmail());
+            emails.remove(user.getEmail());
+            emails.add(userDto.getEmail());
+        }
+        userMapper.updateUserFromUserDto(userDto, user);
+        userRepository.save(user);
+        log.info("Юзер с id = {} обновлен", user.getId());
+        return userMapper.toUserDto(user);
+    }
+
+    @Override
+    public UserDto getUserById(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new NotFoundException(Constants.USER_NOT_FOUND);
+        }
+        return userMapper.toUserDto(user.get());
+    }
+
+    @Override
     public List<UserDto> getAllUsers() {
-        return userRepository.getAllUsers().stream()
+        return userRepository.findAll().stream()
                 .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public void deleteUserById(Long id) {
-        checkUserIsPresent(id);
-        userRepository.deleteUserById(id);
+        userRepository.deleteById(id);
     }
 
-    private void checkUserIsPresent(Long userId) {
-        if (userId == null || userRepository.getUserById(userId) == null) {
-            log.info("User с ID = {} не найден", userId);
-            throw new IllegalArgumentException("User not found");
+    private void checkDublicateEmail(String email) {
+        if (emails.contains(email)) {
+            throw new DublicateEmailException(Constants.EMAIL_BUSY);
         }
     }
 }
