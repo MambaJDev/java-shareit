@@ -28,6 +28,8 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final UserAvailableChecker userAvailableChecker;
+    private final StateExistChecker stateExistChecker;
 
     @Override
     public BookingDtoResponse save(Long userId, BookingDtoRequest bookingDtoRequest) {
@@ -85,7 +87,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDtoResponse> getAllBookingsByUserId(Long bookerId, State state) {
-        userRepository.findById(bookerId).orElseThrow(() -> new NotFoundException(Constants.USER_NOT_FOUND));
+        userAvailableChecker.check(bookerId, state);
+        userAvailableChecker.bind(stateExistChecker);
+        userAvailableChecker.checkNext(bookerId, state);
         switch (state) {
             case ALL: {
                 return bookingMapper.toBookingDtoResponseList(bookingRepository.findAllByBookerIdOrderByStartDesc(bookerId));
@@ -110,32 +114,34 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoResponse> getAllBookingsByOwnerId(Long ownerId, State state) {
-        userRepository.findById(ownerId).orElseThrow(() -> new NotFoundException(Constants.USER_NOT_FOUND));
+    public List<BookingDtoResponse> getAllBookingsByOwnerId(Long bookerId, State state) {
+        userAvailableChecker.check(bookerId, state);
+        userAvailableChecker.bind(stateExistChecker);
+        userAvailableChecker.checkNext(bookerId, state);
         switch (state) {
             case ALL: {
                 return bookingMapper.toBookingDtoResponseList(
-                        bookingRepository.findAllByItemOwnerIdOrderByStartDesc(ownerId));
+                        bookingRepository.findAllByItemOwnerIdOrderByStartDesc(bookerId));
             }
             case WAITING: {
                 return bookingMapper.toBookingDtoResponseList(
-                        bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, Status.WAITING));
+                        bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(bookerId, Status.WAITING));
             }
             case REJECTED: {
                 return bookingMapper.toBookingDtoResponseList(
-                        bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, Status.REJECTED));
+                        bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(bookerId, Status.REJECTED));
             }
             case CURRENT: {
                 return bookingMapper.toBookingDtoResponseList(
-                        bookingRepository.findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(ownerId, LocalDateTime.now(), LocalDateTime.now()));
+                        bookingRepository.findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(bookerId, LocalDateTime.now(), LocalDateTime.now()));
             }
             case FUTURE: {
                 return bookingMapper.toBookingDtoResponseList(
-                        bookingRepository.findALLByItemOwnerIdAndStartIsAfterOrderByStartDesc(ownerId, LocalDateTime.now()));
+                        bookingRepository.findALLByItemOwnerIdAndStartIsAfterOrderByStartDesc(bookerId, LocalDateTime.now()));
             }
             case PAST: {
                 return bookingMapper.toBookingDtoResponseList(
-                        bookingRepository.findALLByItemOwnerIdAndEndIsBeforeOrderByStartDesc(ownerId, LocalDateTime.now()));
+                        bookingRepository.findALLByItemOwnerIdAndEndIsBeforeOrderByStartDesc(bookerId, LocalDateTime.now()));
             }
         }
         return null;

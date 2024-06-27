@@ -13,4 +13,5 @@ public class Constants {
     public static final String NOT_AVAILABLE_ITEM = "Item is not available";
     public static final String WRONG_BOOKING_DATE = "Wrong booking date";
     public static final String EMAIL_BUSY = "This email is busy";
+    public static final String WRONG_STATE = "Invalid search status";
 }
