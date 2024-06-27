@@ -45,3 +45,12 @@ author_id BIGINT NOT NULL,
 CONSTRAINT comments_to_items FOREIGN KEY(item_id) REFERENCES items(id),
 CONSTRAINT comments_to_users FOREIGN KEY(author_id) REFERENCES users(id)
 );
+
+CREATE INDEX comment_item_id_index ON comments(item_id);
+CREATE INDEX item_owner_id_index ON items(owner_id);
+CREATE INDEX item_name_description_index ON items(name, description);
+CREATE INDEX booking_item_id_index ON bookings(item_id);
+CREATE INDEX booking_booker_id_and_start_index ON bookings(booker_id, start_date);
+CREATE INDEX booking_booker_id_and_end_index ON bookings(booker_id, end_date);
+CREATE INDEX booking_booker_id_and_status_index ON bookings(booker_id, status);
+CREATE INDEX booking_item_id_and_booker_id_and_end_index ON bookings(item_id, booker_id, end_date);
