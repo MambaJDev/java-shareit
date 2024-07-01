@@ -1,11 +1,15 @@
 package ru.practicum.shareit.user.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import ru.practicum.shareit.user.model.NewUser;
+import ru.practicum.shareit.user.model.UpdateUser;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
-@Data
+@Getter
+@Setter
 public class UserDto {
     private Long id;
     @NotNull(groups = NewUser.class)

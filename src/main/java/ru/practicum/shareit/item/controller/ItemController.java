@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.constant.Constants;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentDtoResponse;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoResponse;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -27,36 +30,44 @@ public class ItemController {
 
     @PostMapping
     public ItemDto save(@RequestHeader(Constants.HEADER_USER_ID) Long userId,
-                     @RequestBody @Valid ItemDto itemDto) {
-        log.info("Поступил Post-запрос на добавление Item");
+                        @RequestBody @Valid ItemDto itemDto) {
+        log.info("Post-запрос на добавление Item");
         return itemService.save(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestHeader(Constants.HEADER_USER_ID) Long userId,
-                       @RequestBody ItemDto itemDto,
-                       @PathVariable Long itemId) {
-        log.info("Поступил Patch-запрос от User c ID = {} на обновление Item с ID = {}", userId, itemId);
+                          @RequestBody ItemDto itemDto,
+                          @PathVariable Long itemId) {
+        log.info("Patch-запрос от User c ID = {} на обновление Item с ID = {}", userId, itemId);
         return itemService.update(userId, itemId, itemDto);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@RequestHeader(Constants.HEADER_USER_ID) Long userId,
-                            @PathVariable Long itemId) {
-        log.info("Поступил GET-запрос от User c ID = {} на получение Item с ID = {}", userId, itemId);
+    public ItemDtoResponse getItemById(@RequestHeader(Constants.HEADER_USER_ID) Long userId,
+                                       @PathVariable Long itemId) {
+        log.info("GET-запрос от User c ID = {} на получение Item с ID = {}", userId, itemId);
         return itemService.getItemById(userId, itemId);
     }
 
     @GetMapping
-    public List<ItemDto> getAll(@RequestHeader(Constants.HEADER_USER_ID) Long userId) {
-        log.info("Поступил GET-запрос на получение всех Item Юзера c ID = {}", userId);
+    public List<ItemDtoResponse> getAll(@RequestHeader(Constants.HEADER_USER_ID) Long userId) {
+        log.info("GET-запрос на получение всех Item Юзера c ID = {}", userId);
         return itemService.getAll(userId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> searchItems(@RequestHeader(Constants.HEADER_USER_ID) Long userId,
-                                  @RequestParam(required = false) String text) {
-        log.info("Поступил GET-запрос от User c ID = {} на поиск Item ", userId);
+                                     @RequestParam(required = false) String text) {
+        log.info("GET-запрос от User c ID = {} на поиск Item ", userId);
         return itemService.searchItems(userId, text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDtoResponse addComment(@RequestHeader(Constants.HEADER_USER_ID) Long userId,
+                                         @PathVariable Long itemId,
+                                         @RequestBody @Valid CommentDto commentDto) {
+        log.info("Post-запрос addComment");
+        return itemService.addComment(userId, itemId, commentDto);
     }
 }
