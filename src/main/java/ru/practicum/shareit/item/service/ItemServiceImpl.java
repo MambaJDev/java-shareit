@@ -120,6 +120,6 @@ public class ItemServiceImpl implements ItemService {
         }
         Comment comment = commentRepository.save(
                 itemMapper.toComment(commentDto, item, author, LocalDateTime.now()));
-        return itemMapper.toCommentDtoResponse(comment, author);
+        return itemMapper.commentToCommentDtoResponse(comment);
     }
 }

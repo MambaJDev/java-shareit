@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.service;
 
+
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

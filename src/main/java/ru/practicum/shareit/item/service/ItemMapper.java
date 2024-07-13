@@ -35,9 +35,8 @@ public interface ItemMapper {
     @Mapping(ignore = true, target = "id")
     Comment toComment(CommentDto commentDto, Item item, User author, LocalDateTime created);
 
-    @Mapping(source = "comment.id", target = "id")
     @Mapping(source = "author.name", target = "authorName")
-    CommentDtoResponse toCommentDtoResponse(Comment comment, User author);
+    CommentDtoResponse commentToCommentDtoResponse(Comment comment);
 
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,

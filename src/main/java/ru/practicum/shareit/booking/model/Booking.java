@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.model;
 
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -17,7 +18,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
-
 
 @Entity
 @Table(name = "bookings")
