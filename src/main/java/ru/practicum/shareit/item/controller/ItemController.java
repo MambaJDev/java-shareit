@@ -21,6 +21,7 @@ import ru.practicum.shareit.item.service.ItemService;
 import javax.validation.Valid;
 import java.util.List;
 
+
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -51,16 +52,20 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDtoResponse> getAll(@RequestHeader(Constants.HEADER_USER_ID) Long userId) {
+    public List<ItemDtoResponse> getAll(@RequestHeader(Constants.HEADER_USER_ID) Long userId,
+                                        @RequestParam(defaultValue = "0", required = false) Integer from,
+                                        @RequestParam(defaultValue = "10", required = false) Integer size) {
         log.info("GET-запрос на получение всех Item Юзера c ID = {}", userId);
-        return itemService.getAll(userId);
+        return itemService.getAll(userId, from, size);
     }
 
     @GetMapping("/search")
     public List<ItemDto> searchItems(@RequestHeader(Constants.HEADER_USER_ID) Long userId,
-                                     @RequestParam(required = false) String text) {
+                                     @RequestParam(required = false) String text,
+                                     @RequestParam(defaultValue = "0", required = false) Integer from,
+                                     @RequestParam(defaultValue = "10", required = false) Integer size) {
         log.info("GET-запрос от User c ID = {} на поиск Item ", userId);
-        return itemService.searchItems(userId, text);
+        return itemService.searchItems(userId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

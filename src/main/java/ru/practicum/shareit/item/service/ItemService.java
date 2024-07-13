@@ -5,6 +5,7 @@ import ru.practicum.shareit.item.dto.CommentDtoResponse;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoResponse;
 
+
 import java.util.List;
 
 public interface ItemService {
@@ -14,9 +15,9 @@ public interface ItemService {
 
     ItemDtoResponse getItemById(Long userId, Long itemId);
 
-    List<ItemDtoResponse> getAll(Long userId);
+    List<ItemDtoResponse> getAll(Long userId, Integer from, Integer size);
 
-    List<ItemDto> searchItems(Long userId, String text);
+    List<ItemDto> searchItems(Long userId, String text, Integer from, Integer size);
 
     CommentDtoResponse addComment(Long userId, Long itemId, CommentDto commentDto);
 }

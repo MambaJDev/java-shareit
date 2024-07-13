@@ -77,6 +77,12 @@
 			<artifactId>mapstruct-processor</artifactId>
 			<version>${mapstruct.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.jeasy</groupId>
+			<artifactId>easy-random-core</artifactId>
+			<version>5.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -93,7 +99,7 @@
 				<configuration>
 					<excludes>
 						<exclude>
-							<groupId>org.projectlombok</groupId>
+							<groupId>org.project-lombok</groupId>
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
@@ -179,32 +185,32 @@
 										<limits>
 											<limit>
 												<counter>INSTRUCTION</counter>
-												<value>COVEREDRATIO</value>
+												<value>COVERED-RATIO</value>
 												<minimum>0.01</minimum>
 											</limit>
 											<limit>
 												<counter>LINE</counter>
-												<value>COVEREDRATIO</value>
+												<value>COVERED-RATIO</value>
 												<minimum>0.9</minimum>
 											</limit>
 											<limit>
 												<counter>BRANCH</counter>
-												<value>COVEREDRATIO</value>
+												<value>COVERED-RATIO</value>
 												<minimum>0.6</minimum>
 											</limit>
 											<limit>
 												<counter>COMPLEXITY</counter>
-												<value>COVEREDRATIO</value>
+												<value>COVERED-RATIO</value>
 												<minimum>0.6</minimum>
 											</limit>
 											<limit>
 												<counter>METHOD</counter>
-												<value>COVEREDRATIO</value>
+												<value>COVERED-RATIO</value>
 												<minimum>0.7</minimum>
 											</limit>
 											<limit>
 												<counter>CLASS</counter>
-												<value>MISSEDCOUNT</value>
+												<value>MISSED-COUNT</value>
 												<maximum>1</maximum>
 											</limit>
 										</limits>

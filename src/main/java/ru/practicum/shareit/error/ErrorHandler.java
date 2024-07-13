@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.constant.Constants;
 
 @Slf4j
 @RestControllerAdvice
@@ -13,14 +14,14 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleDublicateEmail(final DublicateEmailException exception) {
+    public ErrorResponse handleDuplicateEmail(final DuplicateEmailException exception) {
         log.error("409 {}", exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage());
     }
 
-    @ExceptionHandler(value = {BadRequestException.class, MethodArgumentNotValidException.class})
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse badRequestHandle(final RuntimeException exception) {
+    public ErrorResponse badRequestHandle(MethodArgumentNotValidException exception) {
         log.error("400 {}", exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage());
     }
@@ -35,7 +36,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleUnsupportedStatus(final IllegalArgumentException exception) {
-        log.error("500 {}", "Unknown state: UNSUPPORTED_STATUS", exception);
-        return new ErrorResponse("Unknown state: UNSUPPORTED_STATUS");
+        log.error("500 {}", Constants.UNSUPPORTED_STATUS, exception);
+        return new ErrorResponse(Constants.UNSUPPORTED_STATUS);
     }
 }

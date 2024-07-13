@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import ru.practicum.shareit.user.model.NewUser;
 import ru.practicum.shareit.user.model.UpdateUser;
 
@@ -10,6 +11,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
+@Accessors(chain = true)
 public class UserDto {
     private Long id;
     @NotNull(groups = NewUser.class)

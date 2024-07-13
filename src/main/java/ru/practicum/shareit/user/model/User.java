@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +15,7 @@ import javax.persistence.Table;
 @Table(name = "users")
 @Getter
 @Setter
+@Accessors(chain = true)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

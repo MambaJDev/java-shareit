@@ -27,15 +27,15 @@ public class UserController {
 
     @PostMapping
     public UserDto create(@Validated(NewUser.class)
-                       @RequestBody UserDto userDto) {
+                          @RequestBody UserDto userDto) {
         log.info("Post-запрос на добавление User");
         return userService.create(userDto);
     }
 
     @PatchMapping("/{id}")
     public UserDto update(@Validated(UpdateUser.class)
-                       @RequestBody UserDto userDto,
-                       @PathVariable Long id) {
+                          @RequestBody UserDto userDto,
+                          @PathVariable Long id) {
         log.info("Patch-запрос на обновление User с ID = {}", id);
         return userService.update(id, userDto);
     }
