@@ -48,8 +48,8 @@ public class BookingServiceImplIntegrationTest {
                 .setDescription("Цвет синий, материал металл"));
         BookingDtoRequest bookingDtoRequest = new BookingDtoRequest()
                 .setItemId(item.getId())
-                .setStart(LocalDateTime.of(2024, 7, 14, 13, 0))
-                .setEnd(LocalDateTime.of(2024, 7, 16, 13, 0));
+                .setStart(LocalDateTime.of(2024, 8, 14, 13, 0))
+                .setEnd(LocalDateTime.of(2024, 8, 16, 13, 0));
 
 
         BookingDtoResponse bookingDtoResponse = bookingService.save(2L, bookingDtoRequest);
@@ -60,7 +60,7 @@ public class BookingServiceImplIntegrationTest {
         assertEquals(bookingDtoResponse.getItem().getName(), "Кружка");
         assertEquals(bookingDtoResponse.getStatus(), Status.WAITING);
         assertEquals(bookingDtoResponse.getBooker().getId(), 2L);
-        assertEquals(bookingDtoResponse.getStart().toString(), "2024-07-14T13:00");
-        assertEquals(bookingDtoResponse.getEnd().toString(), "2024-07-16T13:00");
+        assertEquals(bookingDtoResponse.getStart().toString(), "2024-08-14T13:00");
+        assertEquals(bookingDtoResponse.getEnd().toString(), "2024-08-16T13:00");
     }
 }

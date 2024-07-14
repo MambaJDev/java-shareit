@@ -71,7 +71,6 @@ class RequestRepositoryTest {
         List<ItemRequest> itemRequests = requestRepository.findAllStrangerRequests(requester.getId(), pageable);
 
         assertTrue(itemRequests.isEmpty());
-        assertEquals(itemRequests.size(), 0);
     }
 
     @Test

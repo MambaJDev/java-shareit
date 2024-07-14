@@ -124,6 +124,7 @@ class BookingServiceImplTest {
         @Test
         void saveBookingWhenBookerIsOwner() {
             when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+
             NotFoundException exception = assertThrows(
                     NotFoundException.class, () -> bookingService.save(owner.getId(), bookingDtoRequest));
             assertEquals(exception.getMessage(), Constants.OWNER_CAN_NOT_BOOK);
@@ -150,9 +151,8 @@ class BookingServiceImplTest {
 
         @Test
         void saveBookingWhenEndIsEqualStart() {
-            bookingDtoRequest.setStart(LocalDateTime.now().plusDays(1));
-            bookingDtoRequest.setEnd(LocalDateTime.now().plusDays(1));
-
+            bookingDtoRequest.setStart(LocalDateTime.of(2024, 7, 14, 13, 0));
+            bookingDtoRequest.setEnd(LocalDateTime.of(2024, 7, 14, 13, 0));
             BadRequestException exception = assertThrows(
                     BadRequestException.class, () -> bookingService.save(booker.getId(), bookingDtoRequest));
             assertEquals(exception.getMessage(), Constants.WRONG_BOOKING_DATE);
