@@ -222,6 +222,17 @@ class ItemServiceImplTest {
     }
 
     @Test
+    void getItemByIdWhenCommentEqualNull() {
+        when(commentRepository.findAllByItemIdOrderByCreatedDesc(anyLong())).thenReturn(null);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        ItemDtoResponse actualItem = itemService.getItemById(user.getId(), item.getId());
+
+        assertNotNull(actualItem);
+        assertEquals(actualItem.getId(),item.getId());
+        assertNull(actualItem.getComments());
+    }
+
+    @Test
     void getAllByOwner() {
         when(itemRepository.findAllByOwnerIdOrderById(anyLong(), any(Pageable.class))).thenReturn(List.of(item));
         List<ItemDtoResponse> items = itemService.getAll(user.getId(), 0, 1);
