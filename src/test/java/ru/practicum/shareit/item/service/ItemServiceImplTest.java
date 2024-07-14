@@ -1,6 +1,10 @@
 package ru.practicum.shareit.item.service;
 
 
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,11 +27,6 @@ import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -53,6 +52,7 @@ class ItemServiceImplTest {
     @Mock
     private BookingRepository bookingRepository;
     private User user;
+    private User owner;
     private Item item;
     private ItemDto itemDto;
     private ItemDtoResponse itemDtoResponse;
@@ -69,10 +69,14 @@ class ItemServiceImplTest {
                 .setId(1L)
                 .setName("Petr")
                 .setEmail("petrov@mail.com");
+        owner = new User()
+                .setId(2L)
+                .setName("Ivan")
+                .setEmail("ivanov@mail.com");
         item = new Item()
                 .setId(1L)
                 .setName("Кружка")
-                .setOwner(user)
+                .setOwner(owner)
                 .setAvailable(true)
                 .setDescription("Цвет синий, материал металл")
                 .setRequestId(1L);
@@ -140,11 +144,25 @@ class ItemServiceImplTest {
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
         when(itemRepository.save(any(Item.class))).thenReturn(item);
 
-        ItemDto actualItemDto = itemService.update(user.getId(), item.getId(), itemDto);
+        ItemDto actualItemDto = itemService.update(owner.getId(), item.getId(), itemDto);
 
         assertNotNull(actualItemDto);
         assertEquals(actualItemDto.getId(), itemDto.getId());
         assertEquals(actualItemDto.getName(), itemDto.getName());
+        assertEquals(actualItemDto.getDescription(), itemDto.getDescription());
+    }
+
+    @Test
+    void updateItemWhenItemDtoNameIsNull() {
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
+        when(itemRepository.save(any(Item.class))).thenReturn(item);
+        itemDto.setName(null);
+
+        ItemDto actualItemDto = itemService.update(owner.getId(), item.getId(), itemDto);
+
+        assertNotNull(actualItemDto);
+        assertEquals(actualItemDto.getId(), itemDto.getId());
+        assertEquals(actualItemDto.getName(), item.getName());
         assertEquals(actualItemDto.getDescription(), itemDto.getDescription());
     }
 
@@ -170,7 +188,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getItemByIdWithoutBookingsAndComments() {
+    void getItemByIdWhenUserNotOwner() {
         ItemDtoResponse itemDtoResponse = new ItemDtoResponse()
                 .setId(1L)
                 .setName("Кружка")
@@ -189,21 +207,26 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getItemByIdWithBookings() {
+    void getItemByIdWhenUserIsOwner() {
         when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
         when(bookingRepository.findALLByItem(any(Item.class))).thenReturn(List.of(booking1, booking2));
-        itemDtoResponse.setLastBooking(new ItemDtoResponse.BookingDto(1L, 1L));
-        itemDtoResponse.setNextBooking(new ItemDtoResponse.BookingDto(2L, 1L));
 
-        ItemDtoResponse actualItem = itemService.getItemById(user.getId(), item.getId());
+        ItemDtoResponse actualItem = itemService.getItemById(owner.getId(), item.getId());
 
         assertNotNull(actualItem);
-        assertEquals(actualItem.getId(), itemDtoResponse.getId());
-        assertEquals(actualItem.getName(), itemDtoResponse.getName());
-        assertEquals(actualItem.getDescription(), itemDtoResponse.getDescription());
+        assertEquals(actualItem.getId(), item.getId());
+        assertEquals(actualItem.getName(), item.getName());
+        assertEquals(actualItem.getDescription(), item.getDescription());
 
-        assertEquals(actualItem.getLastBooking(), itemDtoResponse.getLastBooking());
-        assertEquals(actualItem.getNextBooking(), itemDtoResponse.getNextBooking());
+        assertEquals(actualItem.getLastBooking(), itemMapper.bookingToBookingDto(booking1));
+        assertEquals(actualItem.getNextBooking(), itemMapper.bookingToBookingDto(booking2));
+    }
+
+    @Test
+    void getItemByIdWhenItemNotFound() {
+        NotFoundException exception =
+                assertThrows(NotFoundException.class, () -> itemService.getItemById(user.getId(), item.getId()));
+        assertEquals(exception.getMessage(), Constants.ITEM_NOT_FOUND);
     }
 
     @Test

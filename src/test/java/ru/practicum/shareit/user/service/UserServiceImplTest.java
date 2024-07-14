@@ -69,6 +69,12 @@ class UserServiceImplTest {
     }
 
     @Test
+    void saveUserWhenUserDtoEqualNull() {
+        assertThrows(
+                NullPointerException.class, () -> userService.create(null));
+    }
+
+    @Test
     void updateIfUserNotFound() {
         NotFoundException exception =
                 assertThrows(NotFoundException.class, () -> userService.update(1L, userDto1Id));
@@ -118,6 +124,21 @@ class UserServiceImplTest {
         assertEquals(updatedUser.getId(), userDto2Id.getId());
         assertEquals(updatedUser.getName(), userDto2Id.getName());
         assertEquals(updatedUser.getEmail(), userDto2Id.getEmail());
+
+        verify(userRepository, times(1)).findById(anyLong());
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void updateUserIfUserDtoEmailEqualNull() {
+        userDto2Id.setEmail(null);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user1Id));
+        when(userRepository.save(any(User.class))).thenReturn(user1Id);
+        UserDto updatedUser = userService.update(2L, userDto2Id);
+
+        assertEquals(updatedUser.getId(), userDto2Id.getId());
+        assertEquals(updatedUser.getName(), userDto2Id.getName());
+        assertNotNull(updatedUser.getEmail());
 
         verify(userRepository, times(1)).findById(anyLong());
         verify(userRepository, times(1)).save(any(User.class));
