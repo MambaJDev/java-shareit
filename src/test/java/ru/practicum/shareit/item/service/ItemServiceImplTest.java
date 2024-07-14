@@ -55,7 +55,6 @@ class ItemServiceImplTest {
     private User owner;
     private Item item;
     private ItemDto itemDto;
-    private ItemDtoResponse itemDtoResponse;
     private Booking booking1;
     private Booking booking2;
     private CommentDto commentDto;
@@ -86,13 +85,6 @@ class ItemServiceImplTest {
                 .setAvailable(true)
                 .setDescription("Цвет синий, материал металл")
                 .setRequestId(1L);
-        itemDtoResponse = new ItemDtoResponse()
-                .setId(1L)
-                .setName("Кружка")
-                .setAvailable(true)
-                .setNextBooking(null)
-                .setLastBooking(null)
-                .setDescription("Цвет синий, материал металл");
         booking1 = new Booking()
                 .setId(1L)
                 .setItem(item)
