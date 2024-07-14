@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking.service;
 
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -22,10 +25,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -104,6 +103,12 @@ class BookingServiceImplTest {
             BookingDtoResponse bookingDtoResponse = bookingService.save(booker.getId(), bookingDtoRequest);
 
             groupAssertChecking(bookingDtoResponse, booking);
+        }
+
+        @Test
+        void saveBookingWhenItemDtoEqualNull() {
+            assertThrows(
+                    NullPointerException.class, () -> bookingService.save(booker.getId(), null));
         }
 
         @Test
@@ -215,6 +220,15 @@ class BookingServiceImplTest {
             NotFoundException exception = assertThrows(
                     NotFoundException.class, () -> bookingService.approveBooking(booker.getId(), booking.getId(), true));
             assertEquals(exception.getMessage(), Constants.USER_NOT_OWNER);
+        }
+
+        @Test
+        void approveBookingWhenAlreadyApproved() {
+            booking.setStatus(Status.APPROVED);
+            when(bookingRepository.findById(anyLong())).thenReturn(Optional.of(booking));
+            BadRequestException exception = assertThrows(
+                    BadRequestException.class, () -> bookingService.approveBooking(owner.getId(), booking.getId(), true));
+            assertEquals(exception.getMessage(), Constants.APPROVED_ITEM);
         }
 
         @Test

@@ -74,12 +74,14 @@ class ItemServiceImplTest {
                 .setName("Кружка")
                 .setOwner(user)
                 .setAvailable(true)
-                .setDescription("Цвет синий, материал металл");
+                .setDescription("Цвет синий, материал металл")
+                .setRequestId(1L);
         itemDto = new ItemDto()
                 .setId(1L)
                 .setName("Кружка")
                 .setAvailable(true)
-                .setDescription("Цвет синий, материал металл");
+                .setDescription("Цвет синий, материал металл")
+                .setRequestId(1L);
         itemDtoResponse = new ItemDtoResponse()
                 .setId(1L)
                 .setName("Кружка")
@@ -109,13 +111,21 @@ class ItemServiceImplTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(itemRepository.save(any(Item.class))).thenReturn(item);
 
-
         ItemDto actualItemDto = itemService.save(user.getId(), itemDto);
 
         assertNotNull(actualItemDto);
         assertEquals(actualItemDto.getId(), itemDto.getId());
         assertEquals(actualItemDto.getName(), itemDto.getName());
         assertEquals(actualItemDto.getDescription(), itemDto.getDescription());
+        assertEquals(actualItemDto.getRequestId(), itemDto.getRequestId());
+    }
+
+    @Test
+    void saveItemWhenItemDtoEqualNull() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+        assertThrows(
+                NullPointerException.class, () -> itemService.save(user.getId(), null));
     }
 
     @Test
