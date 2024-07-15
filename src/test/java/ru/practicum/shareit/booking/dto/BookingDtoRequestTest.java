@@ -18,7 +18,7 @@ class BookingDtoRequestTest {
     private JacksonTester<BookingDtoRequest> tester;
 
     @Test
-    void test() throws IOException {
+    void bookingDtoRequestCheckJsonBodyTest() throws IOException {
         BookingDtoRequest bookingDtoRequest = new BookingDtoRequest()
                 .setItemId(1L)
                 .setStart(LocalDateTime.now())

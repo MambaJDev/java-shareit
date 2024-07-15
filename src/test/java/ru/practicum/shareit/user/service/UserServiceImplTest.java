@@ -34,7 +34,7 @@ class UserServiceImplTest {
 
     private UserService userService;
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
     private final UserMapper userMapper = new UserMapperImpl();
     private User user1Id;
     private UserDto userDto1Id;
