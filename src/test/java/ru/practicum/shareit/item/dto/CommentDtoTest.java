@@ -17,7 +17,7 @@ class CommentDtoTest {
     private JacksonTester<CommentDto> tester;
 
     @Test
-    void CommentDtoCheckJsonBodyTest() throws IOException {
+    void commentDtoCheckJsonBodyTest() throws IOException {
         CommentDto commentDto = new CommentDto()
                 .setText("Лучший товар");
         JsonContent<CommentDto> result = tester.write(commentDto);
