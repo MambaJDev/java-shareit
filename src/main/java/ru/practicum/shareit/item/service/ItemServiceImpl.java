@@ -1,7 +1,10 @@
 package ru.practicum.shareit.item.service;
 
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
@@ -42,8 +45,11 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemMapper.toItem(itemDto);
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(Constants.USER_NOT_FOUND));
         item.setOwner(user);
-        itemRepository.save(item);
-        return itemMapper.toItemDto(item);
+        if (itemDto.getRequestId() != null) {
+            item.setRequestId(itemDto.getRequestId());
+        }
+        Item itemFromRepository = itemRepository.save(item);
+        return itemMapper.toItemDto(itemFromRepository);
     }
 
     @Override
@@ -53,38 +59,40 @@ public class ItemServiceImpl implements ItemService {
             throw new IllegalArgumentException(Constants.USER_NOT_OWNER);
         }
         itemMapper.updateItemFromItemDto(itemDto, item);
-        itemRepository.save(item);
-        return itemMapper.toItemDto(item);
+        Item itemFromRepository = itemRepository.save(item);
+        return itemMapper.toItemDto(itemFromRepository);
     }
 
     @Override
     public ItemDtoResponse getItemById(Long userId, Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(Constants.ITEM_NOT_FOUND));
-        List<Comment> comments = commentRepository.findAllByItemIdOrderByCreatedDesc(itemId);
-        item.setComments(comments);
-        return setItemToItemDtoWithBookings(item, userId);
+        return setItemToItemDtoWithCommentsAndBookings(item, userId);
     }
 
     @Override
-    public List<ItemDtoResponse> getAll(Long ownerId) {
-        return itemRepository.findAllByOwnerIdOrderById(ownerId).stream()
-                .map(item -> setItemToItemDtoWithBookings(item, ownerId))
+    public List<ItemDtoResponse> getAll(Long ownerId, Integer from, Integer size) {
+        Pageable page = PageRequest.of(from / size, size);
+        return itemRepository.findAllByOwnerIdOrderById(ownerId, page).stream()
+                .map(item -> setItemToItemDtoWithCommentsAndBookings(item, ownerId))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemDto> searchItems(Long userId, String text) {
-        if (text.isEmpty()) {
+    public List<ItemDto> searchItems(Long userId, String text, Integer from, Integer size) {
+        Pageable page = PageRequest.of(from / size, size);
+        if (text.isBlank()) {
             log.info("Параметр 'text' пустой. Получен пустой список Item");
             return Collections.emptyList();
         }
-        return itemRepository.findByNameIgnoreCaseContainingAndAvailableTrueOrDescriptionIgnoreCaseContainingAndAvailableTrue(text, text).stream()
+        return itemRepository.findByNameIgnoreCaseContainingAndAvailableTrueOrDescriptionIgnoreCaseContainingAndAvailableTrue(text, text, page).stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
-    private ItemDtoResponse setItemToItemDtoWithBookings(Item item, Long userId) {
-        ItemDtoResponse itemDtoResponse = itemMapper.toItemDtoResponse(item);
+    private ItemDtoResponse setItemToItemDtoWithCommentsAndBookings(Item item, Long userId) {
+        List<Comment> comments = commentRepository.findAllByItemIdOrderByCreatedDesc(item.getId());
+        ItemDtoResponse itemDtoResponse = itemMapper.toItemDtoResponse(item, comments);
+
         if (Objects.equals(item.getOwner().getId(), userId)) {
             List<Booking> bookings = bookingRepository.findALLByItem(item);
             Booking nextBooking = bookings.stream()
@@ -97,32 +105,22 @@ public class ItemServiceImpl implements ItemService {
                     .filter(booking -> booking.getStatus() != Status.REJECTED)
                     .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
                     .findFirst().orElse(null);
-            if (nextBooking != null) {
-                itemDtoResponse.setNextBooking(new ItemDtoResponse.BookingDto(nextBooking.getId(), nextBooking.getBooker().getId()));
-            }
-            if (lastBooking != null) {
-                itemDtoResponse.setLastBooking(new ItemDtoResponse.BookingDto(lastBooking.getId(), lastBooking.getBooker().getId()));
-            }
+
+            itemDtoResponse = itemMapper.updateItemDtoResponseWithBookings(itemDtoResponse, nextBooking, lastBooking);
         }
         return itemDtoResponse;
     }
 
     @Override
     public CommentDtoResponse addComment(Long userId, Long itemId, CommentDto commentDto) {
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(Constants.ITEM_NOT_FOUND));
+        User author = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(Constants.USER_NOT_FOUND));
         List<Booking> bookings = bookingRepository.findAllByItemIdAndBookerIdAndEndIsBefore(itemId, userId, LocalDateTime.now());
         if (bookings.isEmpty()) {
             throw new BadRequestException(Constants.NO_COMMENT);
         }
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(Constants.ITEM_NOT_FOUND));
-        User author = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(Constants.USER_NOT_FOUND));
-        Comment comment = itemMapper.toComment(commentDto);
-        comment.setCreated(LocalDateTime.now());
-        comment.setItem(item);
-        comment.setAuthor(author);
-
-        Comment commentWithId = commentRepository.save(comment);
-        CommentDtoResponse commentDtoResponse = itemMapper.toCommentDtoResponse(commentWithId);
-        commentDtoResponse.setAuthorName(author.getName());
-        return commentDtoResponse;
+        Comment comment = commentRepository.save(
+                itemMapper.toComment(commentDto, item, author, LocalDateTime.now()));
+        return itemMapper.commentToCommentDtoResponse(comment);
     }
 }

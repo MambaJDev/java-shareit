@@ -1,7 +1,9 @@
 package ru.practicum.shareit.item.model;
 
+
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.Column;
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
 @Table(name = "comments")
 @Getter
 @Setter
+@Accessors(chain = true)
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

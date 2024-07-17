@@ -1,7 +1,16 @@
 package ru.practicum.shareit.request.dto;
 
-/**
- * TODO Sprint add-item-requests.
- */
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
+import javax.validation.constraints.NotNull;
+
+@Getter
+@Setter
+@Accessors(chain = true)
 public class ItemRequestDto {
+    @NotNull
+    private String description;
 }

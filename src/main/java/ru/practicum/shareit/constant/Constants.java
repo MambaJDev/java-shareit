@@ -14,4 +14,7 @@ public class Constants {
     public static final String WRONG_BOOKING_DATE = "Wrong booking date";
     public static final String EMAIL_BUSY = "This email is busy";
     public static final String WRONG_STATE = "Invalid search status";
+    public static final String NEGATIVE_VALUE = "Invalid request param";
+    public static final String REQUEST_NOT_FOUND = "Request is not found";
+    public static final String UNSUPPORTED_STATUS = "Unknown state: UNSUPPORTED_STATUS";
 }
