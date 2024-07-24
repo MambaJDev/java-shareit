@@ -127,7 +127,7 @@ class BookingRepositoryTest {
         void findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc() {
             booking.setStart(LocalDateTime.now().minusMinutes(1));
             booking.setEnd(LocalDateTime.now().plusMinutes(1));
-            List<Booking> bookings = bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(booker.getId(), LocalDateTime.now(), LocalDateTime.now(), pageable);
+            List<Booking> bookings = bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartAsc(booker.getId(), LocalDateTime.now(), LocalDateTime.now(), pageable);
 
             assertEquals(bookings.size(), 1);
             Assertions.assertEquals(bookings.get(0), booking);

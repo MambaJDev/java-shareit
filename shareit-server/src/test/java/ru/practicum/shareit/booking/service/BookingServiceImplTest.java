@@ -244,7 +244,7 @@ class BookingServiceImplTest {
             booking.setStart(LocalDateTime.now().minusSeconds(1));
             booking.setEnd(LocalDateTime.now().plusSeconds(1));
             when(userRepository.findById(anyLong())).thenReturn(Optional.of(booker));
-            when(bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
+            when(bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartAsc(
                     anyLong(), any(LocalDateTime.class), any(LocalDateTime.class), any(Pageable.class))).thenReturn(List.of(booking));
             List<BookingDtoResponse> bookings = bookingService.getAllBookingsByUserId(booker.getId(), State.CURRENT, 0, 2);
 
