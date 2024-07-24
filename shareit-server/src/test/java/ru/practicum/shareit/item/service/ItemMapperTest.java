@@ -12,6 +12,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 class ItemMapperTest {
     private final ItemMapper itemMapper = new ItemMapperImpl();
     private Item item;
@@ -83,5 +85,29 @@ class ItemMapperTest {
         Assertions.assertEquals(mappedItemDtoResponse.getDescription(), item.getDescription());
         Assertions.assertEquals(mappedItemDtoResponse.getComments(), List.of(commentDtoResponse));
         Assertions.assertEquals(mappedItemDtoResponse.getAvailable(), item.getAvailable());
+    }
+
+    @Test
+    void testWhenCommentDtoIsNull() {
+        Comment comment = itemMapper.toComment(null, null, null, null);
+        assertNull(comment);
+    }
+
+    @Test
+    void testUpdateItemToItemDtoResponseWhenNull() {
+        ItemDtoResponse itemDtoResponse = itemMapper.toItemDtoResponse(null, null);
+        assertNull(itemDtoResponse);
+    }
+
+    @Test
+    void testUpdateItemDtoResponseWithBookingsWhenNull() {
+        ItemDtoResponse itemDtoResponse = itemMapper.updateItemDtoResponseWithBookings(null, null, null);
+        assertNull(itemDtoResponse);
+    }
+
+    @Test
+    void updateItemToItemDtoWhenNull() {
+        Item item = itemMapper.toItem(null);
+        assertNull(item);
     }
 }
